@@ -1,0 +1,40 @@
+{
+  "name": "harness",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter harness-codex dev",
+    "check": "vp check",
+    "typecheck": "pnpm --filter harness-codex typecheck",
+    "test": "pnpm --filter harness-codex test",
+    "build": "pnpm --filter harness-codex build",
+    "verify": "pnpm typecheck && pnpm test && pnpm build && pnpm lint:pkg",
+    "check:product": "pnpm --filter harness-codex check:product",
+    "release:check": "pnpm verify && HARNESS_TEST_DIR=/tmp/harness-test pnpm check:product",
+    "lint:pkg": "publint packages/cli",
+    "commitlint": "commitlint",
+    "release:version": "changeset version",
+    "release:publish": "changeset publish",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.7",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@types/node": "^24.6.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
+    "publint": "^0.3.12",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3",
+    "vite-plus": "^0.1.15",
+    "vitest": "^3.2.4"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,mjs,cjs,json,md}": [
+      "vp check"
+    ]
+  },
+  "packageManager": "pnpm@10.17.1"
+}

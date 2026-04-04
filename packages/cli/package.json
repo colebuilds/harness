@@ -1,0 +1,25 @@
+{
+  "name": "harness-codex",
+  "version": "0.1.0",
+  "bin": {
+    "harness-codex": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean --out-dir dist",
+    "dev": "tsup src/index.ts --format esm --dts --watch --out-dir dist",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "check:product": "bash ./scripts/check-product.sh"
+  }
+}
