@@ -2,6 +2,37 @@
 
 Harness 0.1 is a minimal Codex-first collaboration product.
 
+## Install
+
+Run directly from npm:
+
+```bash
+pnpm dlx harness-codex init /path/to/project
+```
+
+Preview the initialization plan without writing files:
+
+```bash
+pnpm dlx harness-codex init /path/to/project --dry-run
+```
+
+## What It Writes
+
+`harness-codex init` writes a minimal project collaboration skeleton:
+
+- `.codex/config.toml`
+- `AGENTS.md`
+- `documents/README.md`
+- `documents/codex-pir/*`
+- `vendor/superpowers/skills/*`
+
+## After Init
+
+Inside the initialized project, the default interaction flow is:
+
+1. `复述需求`
+2. `开始执行`
+
 Current focus:
 
 - installable project bootstrap
@@ -24,8 +55,8 @@ Regression and release entry points:
 
 Current 0.1 init writes:
 
-- .codex/config.toml
-- AGENTS.md
-- documents/README.md
-- documents/codex-pir/\*
-- vendor/superpowers/skills/\*
+- `.codex/config.toml`
+- `AGENTS.md`
+- `documents/README.md`
+- `documents/codex-pir/*`
+- `vendor/superpowers/skills/*`
