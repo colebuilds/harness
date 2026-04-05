@@ -8,6 +8,28 @@
     "dev": "Implementer",
     "review": "Reviewer"
   },
+  "gates": {
+    "restate_gate": {
+      "command": "复述需求",
+      "required_before": [
+        "planning",
+        "implementation"
+      ]
+    },
+    "execution_gate": {
+      "command": "开始执行",
+      "required_before": [
+        "implementation"
+      ]
+    }
+  },
+  "execution_guards": {
+    "protected_branches": [
+      "main",
+      "master"
+    ],
+    "default_action": "require_feature_branch_before_implementation"
+  },
   "commands": {
     "复述需求": {
       "pir_phase": "Planner",

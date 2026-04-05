@@ -23,6 +23,15 @@
 - `复述需求`
 - `开始执行`
 
+## Gate Rules
+
+- Before `复述需求` is received, the agent must not enter planning output or code implementation
+- When the user describes work directly, first produce the restated requirement, scope, constraints, and open questions
+- Before `开始执行` is received, the agent must not modify code, generate patches, or run implementation commands
+- Before any code development, the agent must check the current git branch
+- If the current branch is `main` or `master`, the agent must not implement on that branch by default and should create or switch to a work branch first
+- Review requests enter `Reviewer` and must not be mixed with implementation work
+
 ## PIR Phase Semantics
 
 - `复述需求` enters `Planner` by default
