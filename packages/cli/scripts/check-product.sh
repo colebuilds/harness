@@ -96,6 +96,7 @@ assert_contains "$TARGET_DIR/.harness/runtime-contract.json" '"Planner"'
 assert_contains "$TARGET_DIR/.harness/runtime-contract.json" '"main_agent"'
 assert_contains "$TARGET_DIR/.harness/runtime-contract.json" '"restate_gate"'
 assert_contains "$TARGET_DIR/.harness/runtime-contract.json" '"protected_branches"'
+assert_contains "$TARGET_DIR/.harness/runtime-contract.json" '"push_policy": "forbid_direct_push_to_protected_branches"'
 assert_contains "$TARGET_DIR/.harness/runtime-state.json" '"task_state": "awaiting_restate"'
 assert_contains "$TARGET_DIR/AGENTS.md" '复述需求'
 assert_contains "$TARGET_DIR/AGENTS.md" '开始执行'
@@ -105,6 +106,7 @@ assert_contains "$TARGET_DIR/AGENTS.md" '不得进入规划产出和代码实现
 assert_contains "$TARGET_DIR/AGENTS.md" '不得修改代码、生成补丁、执行实现性命令'
 assert_contains "$TARGET_DIR/AGENTS.md" '必须先检查当前 git 分支'
 assert_contains "$TARGET_DIR/AGENTS.md" '默认不得直接实施代码修改'
+assert_contains "$TARGET_DIR/AGENTS.md" '默认不得在 `main` / `master` 上直接开发并直接 push'
 assert_contains "$TARGET_DIR/.harness/logs/latest.json" 'used_query_agent'
 assert_contains "$TARGET_DIR/.harness/logs/latest.json" 'execution_agent_boundaries'
 assert_contains "$TARGET_DIR/.harness/logs/latest.json" 'gate_status'
@@ -113,6 +115,7 @@ assert_contains "$TARGET_DIR/skills/harness-project-policy/SKILL.md" '只能输�
 assert_contains "$TARGET_DIR/skills/harness-project-policy/SKILL.md" '只能输出执行前确认摘要'
 assert_contains "$TARGET_DIR/skills/harness-project-policy/SKILL.md" '必须先检查当前 git 分支'
 assert_contains "$TARGET_DIR/skills/harness-project-policy/SKILL.md" '默认先切出工作分支'
+assert_contains "$TARGET_DIR/skills/harness-project-policy/SKILL.md" '默认不得在 `main` / `master` 上直接开发并直接 push'
 
 echo "== 5. Verification =="
 $CLI_CMD verify "$TARGET_DIR" >/dev/null

@@ -120,6 +120,7 @@ describe("runInit", () => {
     expect(runtimeContract).toContain('"Planner"');
     expect(runtimeContract).toContain('"restate_gate"');
     expect(runtimeContract).toContain('"protected_branches"');
+    expect(runtimeContract).toContain('"push_policy": "forbid_direct_push_to_protected_branches"');
     const runtimeState = readFileSync(join(target, ".harness", "runtime-state.json"), "utf8");
     expect(runtimeState).toContain('"task_state": "awaiting_restate"');
   });
@@ -149,6 +150,7 @@ describe("runInit", () => {
     expect(agents).toContain("debug_mode=on");
     expect(agents).toContain("must not enter planning output or code implementation");
     expect(agents).toContain("must check the current git branch");
+    expect(agents).toContain("do not develop and push directly on `main` / `master`");
     const debugLog = readFileSync(join(target, ".harness", "logs", "latest.json"), "utf8");
     expect(debugLog).toContain("used_query_agent");
     expect(debugLog).toContain("execution_agent_boundaries");

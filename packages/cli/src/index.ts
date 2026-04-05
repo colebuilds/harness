@@ -849,6 +849,7 @@ export function runVerify(targetArg: string) {
         execution_guards?: {
           protected_branches?: string[];
           default_action?: string;
+          push_policy?: string;
         };
         managed_superpowers_path?: string;
       }
@@ -984,6 +985,9 @@ export function runVerify(targetArg: string) {
       if (executionGuards.default_action !== "require_feature_branch_before_implementation") {
         failures.push("runtime contract has invalid protected branch default action");
       }
+      if (executionGuards.push_policy !== "forbid_direct_push_to_protected_branches") {
+        failures.push("runtime contract has invalid protected branch push policy");
+      }
     }
   }
 
@@ -1078,6 +1082,14 @@ export function runVerify(targetArg: string) {
       "AGENTS.md missing protected branch rule",
       failures,
     );
+    checkFileContains(
+      agentsPath,
+      policy?.developer_language === "en"
+        ? "do not develop and push directly on `main` / `master`"
+        : "默认不得在 `main` / `master` 上直接开发并直接 push",
+      "AGENTS.md missing protected branch push rule",
+      failures,
+    );
   }
   if (!existsSync(documentsPath)) {
     failures.push("missing documents/README.md");
@@ -1157,6 +1169,14 @@ export function runVerify(targetArg: string) {
       policySkillPath,
       policy?.developer_language === "en" ? "must switch to a work branch" : "默认先切出工作分支",
       "policy skill missing protected branch rule",
+      failures,
+    );
+    checkFileContains(
+      policySkillPath,
+      policy?.developer_language === "en"
+        ? "do not develop and push directly on `main` / `master`"
+        : "默认不得在 `main` / `master` 上直接开发并直接 push",
+      "policy skill missing protected branch push rule",
       failures,
     );
   }

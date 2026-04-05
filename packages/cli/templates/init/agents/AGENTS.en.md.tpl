@@ -30,6 +30,8 @@
 - Before `开始执行` is received, the agent must not modify code, generate patches, or run implementation commands
 - Before any code development, the agent must check the current git branch
 - If the current branch is `main` or `master`, the agent must not implement on that branch by default and should create or switch to a work branch first
+- `main` / `master` are merge targets for PRs, not default development branches
+- By default, do not develop and push directly on `main` / `master`
 - Review requests enter `Reviewer` and must not be mixed with implementation work
 
 ## PIR Phase Semantics
