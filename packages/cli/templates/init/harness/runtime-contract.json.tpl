@@ -28,7 +28,8 @@
       "main",
       "master"
     ],
-    "default_action": "require_feature_branch_before_implementation"
+    "default_action": "require_feature_branch_before_implementation",
+    "push_policy": "forbid_direct_push_to_protected_branches"
   },
   "commands": {
     "复述需求": {

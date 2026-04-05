@@ -22,6 +22,7 @@
 - 只有当 `execution_approved=true` 时，才允许修改代码、生成补丁、执行实现性命令
 - 在开始任何代码开发前，必须先检查当前 git 分支
 - 若当前分支是 `main` / `master`，默认先切出工作分支，未获准前不得直接开发
+- 默认不得在 `main` / `master` 上直接开发并直接 push，应通过工作分支和 PR 进入主分支
 - `复述需求` 默认进入 `Planner`，并优先允许查询 agent 收集上下文
 - `开始执行` 默认进入 `Implementer`，必要时允许拆分执行 agent
 - review 请求默认进入 `Reviewer`

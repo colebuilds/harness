@@ -22,6 +22,7 @@ Before entering the `superpowers` workflow, read:
 - Only when `execution_approved=true` may the agent modify code, generate patches, or run implementation commands
 - Before any code development, the agent must check the current git branch
 - If the current branch is `main` or `master`, the agent must switch to a work branch before implementation unless explicitly approved otherwise
+- By default, do not develop and push directly on `main` / `master`; use a work branch and merge through a PR
 - `复述需求` enters `Planner` by default and may use the query agent first
 - `开始执行` enters `Implementer` by default and may split bounded execution agents when needed
 - Review requests enter `Reviewer` by default
