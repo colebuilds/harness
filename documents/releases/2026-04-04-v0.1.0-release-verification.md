@@ -40,14 +40,18 @@ applies_to: human, ai-agent
 
 - [x] 成功执行 `harness-codex init`
 - [x] `.codex/config.toml` 存在
+- [x] `.harness/project-policy.json` 存在
+- [x] `.harness/components.lock.json` 存在
+- [x] `.harness/runtime-contract.json` 存在
 - [x] `AGENTS.md` 存在
-- [x] `documents/codex-pir/*` 存在
-- [x] `vendor/superpowers/skills/*` 存在
+- [x] `documents/README.md` 存在
+- [x] `/.harness/superpowers/*` 存在
+- [x] `skills/harness-project-policy/SKILL.md` 存在
 
 备注：
 
 - 初始化后的骨架与 0.1 预期一致
-- 重复执行不会覆盖已有内容
+- 重复执行会先备份再替换受管产物
 
 ---
 

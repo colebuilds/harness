@@ -29,10 +29,11 @@ applies_to: human, ai-agent
 
 - 文档规范
 - PIR
-- `superpowers` workflow
-- 主 agent + 查询子 agent + 按需执行子 agent
+- 完整受管的 `superpowers` workflow
+- 主 agent + 查询 agent + 按需执行 agent
 - 基本口令
 - 最小接入能力
+- 可验证的初始化与检查命令
 
 ---
 
@@ -61,9 +62,9 @@ applies_to: human, ai-agent
 0.1 通过：
 
 - `.codex/config.toml`
+- `.harness/project-policy.json`
 - `AGENTS.md`
 - `documents/README.md`
-- `documents/codex-pir/`
 
 建立最小项目级入口。
 
@@ -99,6 +100,16 @@ AI 很容易在分析、规划、实现、review 之间来回漂移。
 - 文档是正式产物
 - 需求、设计、交付、演进信息要进入正式目录
 
+### 4.5 初始化后缺少持续校验入口
+
+如果项目只在初始化时生成骨架，但后续没有统一校验入口，这些规则和产物会很快失真。
+
+0.1 通过：
+
+- `harness-codex verify`
+
+把初始化产物、项目策略、运行契约、文档模式与调试摘要重新连成最小校验闭环。
+
 ---
 
 ## 5. 0.1 核心目标
@@ -113,6 +124,7 @@ AI 很容易在分析、规划、实现、review 之间来回漂移。
 - 有最小工作流骨架
 - 有最小 agent 协作结构
 - 有最小口令体系
+- 有最小结构校验能力
 
 ---
 
@@ -138,10 +150,13 @@ AI 很容易在分析、规划、实现、review 之间来回漂移。
 用户执行一次初始化后，项目应至少获得：
 
 - `.codex/config.toml`
+- `.harness/project-policy.json`
+- `.harness/components.lock.json`
+- `.harness/runtime-contract.json`
 - `AGENTS.md`
 - `documents/README.md`
-- `documents/codex-pir/`
-- 已接入的 `superpowers` workflow 说明
+- `skills/harness-project-policy/SKILL.md`
+- `/.harness/superpowers/`
 
 此后，用户应能以以下方式开始工作：
 
@@ -150,6 +165,18 @@ AI 很容易在分析、规划、实现、review 之间来回漂移。
 3. 分析/规划
 4. `开始执行`
 5. 输出代码与文档结果
+
+并且用户应能运行：
+
+- `harness-codex verify`
+
+来检查：
+
+- PIR profiles 是否完整
+- 项目策略是否合法
+- 运行契约是否完整
+- 文档模式与目录是否一致
+- `debug_mode=on` 时的调试摘要模板是否完整
 
 ---
 
