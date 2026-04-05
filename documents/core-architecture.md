@@ -43,7 +43,9 @@ applies_to: human, ai-agent
 
 - `AGENTS.md`
 - `documents/README.md`
-- `documents/codex-pir/`
+- `.harness/project-policy.json`
+- `.harness/runtime-contract.json`
+- `documents/standards/ai-collaboration/`（`full` 模式）
 
 这一层解决的是：
 
@@ -60,6 +62,7 @@ applies_to: human, ai-agent
 - PIR
 - `superpowers` workflow
 - 正式口令与系统步骤
+- 口令到 PIR / profile / skill / runtime agent 的映射
 
 当前最小工作流为：
 
@@ -87,16 +90,22 @@ applies_to: human, ai-agent
 这一层负责：
 
 - 主 agent
-- 查询子 agent
-- 按需执行子 agent
+- 查询 agent
+- 按需执行 agent
 
 其中：
 
 - 主 agent 负责主流程推进
-- 查询子 agent 负责查询资料、代码、文档等上下文
-- 执行子 agent 按需参与复杂实现任务
+- 查询 agent 负责查询资料、代码、文档等上下文
+- 执行 agent 按需参与复杂实现任务
 
-  0.1 中，这一层只做最小协作约定，不做复杂运行时编排系统。
+  0.1 中，这一层只做最小协作约定，不做复杂运行时编排系统；当前主要通过：
+
+- `AGENTS.md`
+- `.harness/runtime-contract.json`
+- `debug_mode=on` 时的调试摘要模板
+
+固化这套最小运行时架构。
 
 ---
 
@@ -112,7 +121,8 @@ applies_to: human, ai-agent
 当前主要承载体是：
 
 - `harness-codex init`
-- 后续轻量 `doctor`
+- `harness-codex verify`
+- `harness-codex upgrade superpowers`
 
 这一层解决的是：
 
@@ -135,14 +145,27 @@ applies_to: human, ai-agent
 
 接入与引导层
   -> 把以上最小骨架写入项目
+  -> 检查这些骨架是否仍然一致
 ```
 
 更直白地说：
 
-- 文档与规则层定义项目默认规则
-- 协作工作流层定义怎么工作
-- Agent 协作层定义谁来工作
-- 接入与引导层负责把这套东西装进项目
+- 文档与规则层定义项目默认规则、文档路由和项目策略
+- 协作工作流层定义 PIR、profiles 与 `superpowers` 如何协同
+- Agent 协作层定义主 agent / 查询 agent / 执行 agent 如何分工
+- 接入与引导层负责把这套东西装进项目，并用 `verify` 做结构一致性检查
+
+当前 `verify` 已最少覆盖：
+
+- `.codex/config.toml` 中的 `plan / dev / review`
+- `.harness/project-policy.json`
+- `.harness/components.lock.json`
+- `.harness/runtime-contract.json`
+- `AGENTS.md`
+- `documents/README.md`
+- `full` 模式下的 `documents/standards/ai-collaboration/README.md`
+- `skills/harness-project-policy/SKILL.md`
+- `debug_mode=on` 时的 `.harness/logs/latest.json`
 
 ---
 
@@ -162,4 +185,4 @@ applies_to: human, ai-agent
 
 ## 9. 一句话总结
 
-**Harness 0.1 的最小架构，是由文档与规则层、协作工作流层、Agent 协作层、接入与引导层组成的最小 Codex-first 协作骨架。**
+**Harness 0.1 的最小架构，是由文档与规则层、协作工作流层、Agent 协作层、接入与引导层组成的最小 Codex-first 协作骨架；当前实现已将这些层落到项目级配置、受管 `superpowers`、运行时契约和最小校验命令中。**

@@ -18,7 +18,8 @@ applies_to: human, ai-agent
 - 为什么文档不是附属物，而是正式产物
 - 用户接入系统后，应该获得哪些文档能力
 - 文档规范与 AI 协作规范如何联动
-- `AGENTS.md`、`documents/README.md`、`documents/standards/ai-collaboration/*`、skills 各自负责什么
+- `AGENTS.md`、`documents/README.md`、`documents/standards/ai-collaboration/*`、skills、`.harness/runtime-contract.json` 各自负责什么
+- `verify` 如何把这些规则与产物重新校验成一个可检查的项目状态
 - 文档治理为什么是当前产品主能力之一
 
 本文档不展开：
@@ -209,7 +210,9 @@ AI 协作规范回答的是：
 
 其核心入口是：
 
-- `documents/standards/ai-collaboration/*`
+- `documents/standards/ai-collaboration/*`（`full` 模式）
+- `AGENTS.md`（所有模式）
+- `.harness/runtime-contract.json`（机器可读约束）
 
 ### 6.3 两者的关系
 
@@ -224,6 +227,22 @@ AI 协作规范回答的是：
 
 - 分工不同
 - 强耦合联动
+
+### 6.4 `verify` 的位置
+
+`verify` 不是附加便利命令，而是当前文档治理和 AI 协作治理的最小校验入口。
+
+它当前至少负责检查：
+
+- 项目策略是否仍然合法
+- 文档模式是否仍与目录结构一致
+- 机器可读执行契约是否仍完整
+- AI 协作补充规则是否仍具备最小约束
+- `debug_mode=on` 时的调试摘要模板是否仍满足最小结构
+
+因此，文档治理在 0.1 里不是“生成一些文档”，而是：
+
+**生成文档规则、生成文档目录、再通过 `verify` 检查这些规则与目录是否仍然一致。**
 
 ---
 
@@ -271,7 +290,19 @@ AI 协作规范回答的是：
 
 **AI 协作正式制度层**
 
-### 7.4 `skills/*/SKILL.md`
+### 7.4 `.harness/runtime-contract.json`
+
+负责：
+
+- `复述需求` / `开始执行` / review 请求的机器可读映射
+- `PIR` 阶段与 `plan / dev / review` profiles 的对应关系
+- `superpowers` 与运行时 agent 架构的契约化说明
+
+它是：
+
+**机器可读执行契约层**
+
+### 7.5 `skills/*/SKILL.md`
 
 负责：
 
@@ -282,6 +313,19 @@ AI 协作规范回答的是：
 它是：
 
 **执行 workflow 层**
+
+### 7.6 `verify`
+
+负责：
+
+- 检查规则文件是否仍存在且结构正确
+- 检查文档模式与实际目录是否一致
+- 检查项目策略与运行契约是否一致
+- 检查 `debug_mode=on` 时的最小摘要结构
+
+它是：
+
+**治理闭环层**
 
 所以整个关系应理解为：
 
@@ -295,8 +339,14 @@ documents/README.md
 documents/standards/ai-collaboration/*
   -> AI 协作正式制度
 
+.harness/runtime-contract.json
+  -> 机器可读执行契约
+
 skills/*/SKILL.md
   -> 场景工作流执行增强
+
+verify
+  -> 治理闭环与结构校验
 ```
 
 ---
@@ -335,6 +385,7 @@ skills/*/SKILL.md
 - 是否形成对应文档产物
 - 是否进入正确目录
 - 是否具备追溯价值
+- 是否仍能通过 `verify`
 
 ---
 

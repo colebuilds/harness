@@ -16,7 +16,7 @@ applies_to: human, ai-agent
 本文档重点回答的问题是：
 
 - `Planner / Implementer / Reviewer` 分别是什么
-- 主 agent / 执行子 agent / 查询子 agent 分别是什么
+- 主 agent / 查询 agent / 执行 agent 分别是什么
 - 为什么这两套结构不能混为一谈
 - 各阶段由谁驱动
 - 查询、执行、审查分别由哪些运行时单元承接
@@ -59,8 +59,8 @@ applies_to: human, ai-agent
 这一套由执行架构定义：
 
 - 主 agent
-- 执行子 agent
-- 查询子 agent
+- 查询 agent
+- 执行 agent
 
 它回答的是：
 
@@ -165,7 +165,7 @@ applies_to: human, ai-agent
 - 解释当前阶段语义
 - 识别当前 Batch / Work Item / Execution Unit
 - 决定是否拆分任务
-- 决定调用查询子 agent 还是执行子 agent
+- 决定调用查询 agent 还是执行 agent
 - 汇总子 agent 结果
 - 推动生命周期前进或回退
 
@@ -173,9 +173,9 @@ applies_to: human, ai-agent
 
 **运行时主控。**
 
-## 5.2 查询子 agent
+## 5.2 查询 agent
 
-查询子 agent 负责：
+查询 agent 负责：
 
 - 读代码
 - 查文档
@@ -188,9 +188,9 @@ applies_to: human, ai-agent
 
 **帮助主 agent 降低分析成本与查证成本。**
 
-## 5.3 执行子 agent
+## 5.3 执行 agent
 
-执行子 agent 负责：
+执行 agent 负责：
 
 - 落地具体执行单元
 - 处理明确边界下的实现任务
@@ -212,7 +212,7 @@ applies_to: human, ai-agent
 主要由：
 
 - 主 agent
-- 查询子 agent
+- 查询 agent
 
 共同承接。
 
@@ -224,15 +224,15 @@ applies_to: human, ai-agent
 因此：
 
 - 主 agent 负责计划与拆分
-- 查询子 agent 负责上下文查证
+- 查询 agent 负责上下文查证
 
 ### 6.2 Implementer 阶段
 
 主要由：
 
 - 主 agent
-- 执行子 agent
-- 必要时的查询子 agent
+- 执行 agent
+- 必要时的查询 agent
 
 共同承接。
 
@@ -244,27 +244,27 @@ applies_to: human, ai-agent
 因此：
 
 - 主 agent 负责调度与总收口
-- 执行子 agent 负责具体实现
-- 查询子 agent 负责补查依赖与证据
+- 执行 agent 负责具体实现
+- 查询 agent 负责补查依赖与证据
 
 ### 6.3 Reviewer 阶段
 
 主要由：
 
 - 主 agent
-- 查询子 agent
+- 查询 agent
 
 共同承接。
 
 原因是：
 
 - `Reviewer` 更依赖证据、比对与只读分析
-- 通常不应由执行子 agent 主导
+- 通常不应由执行 agent 主导
 
 因此：
 
 - 主 agent 负责审查结论
-- 查询子 agent 负责查证与对照
+- 查询 agent 负责查证与对照
 
 ---
 
@@ -288,9 +288,9 @@ applies_to: human, ai-agent
 
 ## 8. 查询与执行的分工原则
 
-为了防止多 agent 运行态发散，查询子 agent 与执行子 agent 的边界必须清楚。
+为了防止多 agent 运行态发散，查询 agent 与执行 agent 的边界必须清楚。
 
-### 8.1 查询子 agent 适合承接的任务
+### 8.1 查询 agent 适合承接的任务
 
 - 查调用点
 - 查文档
@@ -299,7 +299,7 @@ applies_to: human, ai-agent
 - 收集验证前证据
 - 在 review 中做只读对照
 
-### 8.2 执行子 agent 适合承接的任务
+### 8.2 执行 agent 适合承接的任务
 
 - 在已确认执行单元下修改代码
 - 在已确认边界下补测试
@@ -308,8 +308,8 @@ applies_to: human, ai-agent
 
 ### 8.3 不应发生的情况
 
-- 查询子 agent 擅自扩大为执行 worker
-- 执行子 agent 在未明确边界前重写计划
+- 查询 agent 擅自扩大为执行 worker
+- 执行 agent 在未明确边界前重写计划
 - 子 agent 脱离当前 Batch / Work Item / Execution Unit 自行发散
 
 ---
@@ -345,7 +345,7 @@ applies_to: human, ai-agent
 1. 角色只保留 `Planner / Implementer / Reviewer`
 2. 复杂任务不新增常驻 `Orchestrator`
 3. bug 修复不新增常驻 `Debugger`
-4. 主 agent / 查询子 agent / 执行子 agent 作为运行时编排层固定下来
+4. 主 agent / 查询 agent / 执行 agent 作为运行时编排层固定下来
 5. 角色和 agent 的命名不能混用
 
 ---
@@ -355,6 +355,6 @@ applies_to: human, ai-agent
 在 `Codex Harness` 中：
 
 - `Planner / Implementer / Reviewer` 是阶段角色
-- 主 agent / 执行子 agent / 查询子 agent 是运行时执行结构
+- 主 agent / 查询 agent / 执行 agent 是运行时执行结构
 
 前者定义**当前任务语义**，后者定义**当前任务如何被调度与执行**。只有两者分清，复杂任务拆解与多任务编排才不会失控。
