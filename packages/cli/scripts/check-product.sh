@@ -62,12 +62,13 @@ assert_output_contains "$DRY_RUN_OUTPUT" "Managed superpowers: .harness/superpow
 echo "== 3. Real init =="
 INIT_OUTPUT="$($CLI_CMD init "$TARGET_DIR" --developer-language=zh-CN --document-mode=full --debug-mode=on --yes)"
 assert_output_contains "$INIT_OUTPUT" "Created or replaced:"
-assert_output_contains "$INIT_OUTPUT" 'Use `复述需求`'
+assert_output_contains "$INIT_OUTPUT" 'awaiting_restate'
 
 assert_file "$TARGET_DIR/.codex/config.toml"
 assert_file "$TARGET_DIR/.harness/project-policy.json"
 assert_file "$TARGET_DIR/.harness/components.lock.json"
 assert_file "$TARGET_DIR/.harness/runtime-contract.json"
+assert_file "$TARGET_DIR/.harness/runtime-state.json"
 assert_dir "$TARGET_DIR/.harness/superpowers"
 assert_dir "$TARGET_DIR/.harness/logs/sessions"
 assert_file "$TARGET_DIR/.harness/logs/latest.json"
@@ -93,12 +94,25 @@ assert_contains "$TARGET_DIR/.harness/components.lock.json" '"managed_path": ".h
 assert_contains "$TARGET_DIR/.harness/runtime-contract.json" '"复述需求"'
 assert_contains "$TARGET_DIR/.harness/runtime-contract.json" '"Planner"'
 assert_contains "$TARGET_DIR/.harness/runtime-contract.json" '"main_agent"'
+assert_contains "$TARGET_DIR/.harness/runtime-contract.json" '"restate_gate"'
+assert_contains "$TARGET_DIR/.harness/runtime-contract.json" '"protected_branches"'
+assert_contains "$TARGET_DIR/.harness/runtime-state.json" '"task_state": "awaiting_restate"'
 assert_contains "$TARGET_DIR/AGENTS.md" '复述需求'
 assert_contains "$TARGET_DIR/AGENTS.md" '开始执行'
 assert_contains "$TARGET_DIR/AGENTS.md" '.harness/superpowers'
 assert_contains "$TARGET_DIR/AGENTS.md" '主 agent'
+assert_contains "$TARGET_DIR/AGENTS.md" '不得进入规划产出和代码实现'
+assert_contains "$TARGET_DIR/AGENTS.md" '不得修改代码、生成补丁、执行实现性命令'
+assert_contains "$TARGET_DIR/AGENTS.md" '必须先检查当前 git 分支'
+assert_contains "$TARGET_DIR/AGENTS.md" '默认不得直接实施代码修改'
 assert_contains "$TARGET_DIR/.harness/logs/latest.json" 'used_query_agent'
 assert_contains "$TARGET_DIR/.harness/logs/latest.json" 'execution_agent_boundaries'
+assert_contains "$TARGET_DIR/.harness/logs/latest.json" 'gate_status'
+assert_contains "$TARGET_DIR/skills/harness-project-policy/SKILL.md" 'runtime-state.json'
+assert_contains "$TARGET_DIR/skills/harness-project-policy/SKILL.md" '只能输出需求复述'
+assert_contains "$TARGET_DIR/skills/harness-project-policy/SKILL.md" '只能输出执行前确认摘要'
+assert_contains "$TARGET_DIR/skills/harness-project-policy/SKILL.md" '必须先检查当前 git 分支'
+assert_contains "$TARGET_DIR/skills/harness-project-policy/SKILL.md" '默认先切出工作分支'
 
 echo "== 5. Verification =="
 $CLI_CMD verify "$TARGET_DIR" >/dev/null
@@ -110,6 +124,7 @@ $CLI_CMD init "$TARGET_DIR" --developer-language=en --document-mode=flat --debug
 BACKUP_DIR="$(find "$TARGET_DIR/.harness-backup" -mindepth 1 -maxdepth 1 | head -n 1)"
 [[ -n "$BACKUP_DIR" ]] || fail "backup directory not created"
 assert_file "$BACKUP_DIR/AGENTS.md"
+assert_file "$BACKUP_DIR/.harness/runtime-state.json"
 
 echo "== 7. Superpowers upgrade =="
 printf '{"broken":true}\n' > "$TARGET_DIR/.harness/components.lock.json"

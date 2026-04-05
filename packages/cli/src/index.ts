@@ -241,6 +241,11 @@ function defaultDebugLog(context: TemplateContext) {
       debug_mode: context.debugMode,
       developer_language: context.developerLanguage,
       document_mode: context.documentMode,
+      gate_status: {
+        restate_completed: false,
+        execution_approved: false,
+      },
+      blocked_reason: "awaiting_restate_gate",
       current_phase: "Planner",
       used_query_agent: false,
       used_execution_agents: 0,
@@ -275,6 +280,7 @@ function conflictTargets(targetRoot: string) {
     join(targetRoot, ".harness", "project-policy.json"),
     join(targetRoot, ".harness", "components.lock.json"),
     join(targetRoot, ".harness", "runtime-contract.json"),
+    join(targetRoot, ".harness", "runtime-state.json"),
     join(targetRoot, ".harness", "superpowers"),
     join(targetRoot, ".harness", "logs"),
   ];
@@ -482,6 +488,14 @@ export async function runInit(targetArg: string, options: InitOptions) {
     options.dryRun,
   );
   writeRenderedFile(
+    resolve(templateRoot, "harness", "runtime-state.json.tpl"),
+    join(targetRoot, ".harness", "runtime-state.json"),
+    context,
+    created,
+    replaced,
+    options.dryRun,
+  );
+  writeRenderedFile(
     resolve(templateRoot, "agents", `AGENTS.${options.developerLanguage}.md.tpl`),
     join(targetRoot, "AGENTS.md"),
     context,
@@ -573,9 +587,11 @@ export async function runInit(targetArg: string, options: InitOptions) {
     log("");
   }
   log("Next steps:");
-  log("1. Use `复述需求` to confirm the task boundary.");
-  log("2. Use `开始执行` only after plan approval.");
-  log("3. Read `AGENTS.md` and `documents/README.md` before customising the project rules.");
+  log("1. The project starts in `awaiting_restate`; do not implement before `复述需求`.");
+  log("2. Use `开始执行` only after the restated scope is approved.");
+  log(
+    "3. Read `AGENTS.md`, `.harness/runtime-contract.json`, and `.harness/runtime-state.json` before customising the project rules.",
+  );
 }
 
 function readExistingPolicy(targetRoot: string): TemplateContext | undefined {
@@ -609,6 +625,7 @@ export async function runUpgrade(targetArg: string, options: Pick<InitOptions, "
   const managedPath = join(targetRoot, ".harness", "superpowers");
   const lockPath = join(targetRoot, ".harness", "components.lock.json");
   const runtimeContractPath = join(targetRoot, ".harness", "runtime-contract.json");
+  const runtimeStatePath = join(targetRoot, ".harness", "runtime-state.json");
   const context = readExistingPolicy(targetRoot);
 
   if (!existsSync(managedPath)) {
@@ -659,6 +676,9 @@ export async function runUpgrade(targetArg: string, options: Pick<InitOptions, "
     if (existsSync(runtimeContractPath)) {
       cpSync(runtimeContractPath, join(backupRoot, "runtime-contract.json"), { recursive: true });
     }
+    if (existsSync(runtimeStatePath)) {
+      cpSync(runtimeStatePath, join(backupRoot, "runtime-state.json"), { recursive: true });
+    }
 
     rmSync(managedPath, { force: true, recursive: true });
     cpSync(resolve(templateRoot, "vendor-superpowers-full"), managedPath, { recursive: true });
@@ -673,12 +693,18 @@ export async function runUpgrade(targetArg: string, options: Pick<InitOptions, "
       readTemplate(resolve(templateRoot, "harness", "runtime-contract.json.tpl"), context),
       "utf8",
     );
+    writeFileSync(
+      runtimeStatePath,
+      readTemplate(resolve(templateRoot, "harness", "runtime-state.json.tpl"), context),
+      "utf8",
+    );
   }
 
   log(options.dryRun ? "Would replace:" : "Replaced:");
   log(`- ${toRelative(targetRoot, managedPath)}`);
   log(`- ${toRelative(targetRoot, lockPath)}`);
   log(`- ${toRelative(targetRoot, runtimeContractPath)}`);
+  log(`- ${toRelative(targetRoot, runtimeStatePath)}`);
   log("");
   log(
     options.dryRun ? "No files changed." : `Backup saved to ${toRelative(targetRoot, backupRoot)}`,
@@ -724,6 +750,7 @@ export function runVerify(targetArg: string) {
   const policyPath = join(targetRoot, ".harness", "project-policy.json");
   const lockPath = join(targetRoot, ".harness", "components.lock.json");
   const runtimeContractPath = join(targetRoot, ".harness", "runtime-contract.json");
+  const runtimeStatePath = join(targetRoot, ".harness", "runtime-state.json");
   const agentsPath = join(targetRoot, "AGENTS.md");
   const documentsPath = join(targetRoot, "documents", "README.md");
   const superpowersPath = join(targetRoot, ".harness", "superpowers");
@@ -812,6 +839,17 @@ export function runVerify(targetArg: string) {
           }
         >;
         runtime_agent_architecture?: Record<string, string>;
+        gates?: Record<
+          string,
+          {
+            command?: string;
+            required_before?: string[];
+          }
+        >;
+        execution_guards?: {
+          protected_branches?: string[];
+          default_action?: string;
+        };
         managed_superpowers_path?: string;
       }
     | undefined;
@@ -899,6 +937,97 @@ export function runVerify(targetArg: string) {
     if (!runtimeAgents.execution_agents) {
       failures.push("runtime contract missing execution_agents runtime architecture");
     }
+
+    const gates = runtimeContract.gates ?? {};
+    const restateGate = gates.restate_gate;
+    if (!restateGate) {
+      failures.push("runtime contract missing restate_gate");
+    } else {
+      if (restateGate.command !== "复述需求") {
+        failures.push("runtime contract has invalid restate_gate command");
+      }
+      if (
+        !Array.isArray(restateGate.required_before) ||
+        !restateGate.required_before.includes("planning") ||
+        !restateGate.required_before.includes("implementation")
+      ) {
+        failures.push("runtime contract has invalid restate_gate requirements");
+      }
+    }
+
+    const executionGate = gates.execution_gate;
+    if (!executionGate) {
+      failures.push("runtime contract missing execution_gate");
+    } else {
+      if (executionGate.command !== "开始执行") {
+        failures.push("runtime contract has invalid execution_gate command");
+      }
+      if (
+        !Array.isArray(executionGate.required_before) ||
+        !executionGate.required_before.includes("implementation")
+      ) {
+        failures.push("runtime contract has invalid execution_gate requirements");
+      }
+    }
+
+    const executionGuards = runtimeContract.execution_guards;
+    if (!executionGuards) {
+      failures.push("runtime contract missing execution_guards");
+    } else {
+      if (
+        !Array.isArray(executionGuards.protected_branches) ||
+        !executionGuards.protected_branches.includes("main") ||
+        !executionGuards.protected_branches.includes("master")
+      ) {
+        failures.push("runtime contract has invalid protected_branches guard");
+      }
+      if (executionGuards.default_action !== "require_feature_branch_before_implementation") {
+        failures.push("runtime contract has invalid protected branch default action");
+      }
+    }
+  }
+
+  const runtimeState = readJsonFile(
+    runtimeStatePath,
+    failures,
+    "missing .harness/runtime-state.json",
+  ) as
+    | {
+        task_state?: string;
+        restate_completed?: unknown;
+        execution_approved?: unknown;
+        current_phase?: string;
+      }
+    | undefined;
+  if (runtimeState) {
+    if (
+      ![
+        "awaiting_restate",
+        "restate_completed",
+        "awaiting_execution_gate",
+        "executing",
+        "reviewing",
+      ].includes(runtimeState.task_state ?? "")
+    ) {
+      failures.push("runtime state has invalid task_state");
+    }
+    if (typeof runtimeState.restate_completed !== "boolean") {
+      failures.push("runtime state restate_completed must be boolean");
+    }
+    if (typeof runtimeState.execution_approved !== "boolean") {
+      failures.push("runtime state execution_approved must be boolean");
+    }
+    if (!["Planner", "Implementer", "Reviewer"].includes(runtimeState.current_phase ?? "")) {
+      failures.push("runtime state has invalid current_phase");
+    }
+    if (
+      runtimeState.task_state === "awaiting_restate" &&
+      (runtimeState.restate_completed !== false ||
+        runtimeState.execution_approved !== false ||
+        runtimeState.current_phase !== "Planner")
+    ) {
+      failures.push("runtime state has invalid default gate state");
+    }
   }
   if (!existsSync(agentsPath)) {
     failures.push("missing AGENTS.md");
@@ -915,6 +1044,38 @@ export function runVerify(targetArg: string) {
       agentsPath,
       policy?.developer_language === "en" ? "main agent" : "主 agent",
       "AGENTS.md missing runtime agent architecture",
+      failures,
+    );
+    checkFileContains(
+      agentsPath,
+      policy?.developer_language === "en"
+        ? "must not enter planning output or code implementation"
+        : "不得进入规划产出和代码实现",
+      "AGENTS.md missing restate gate enforcement",
+      failures,
+    );
+    checkFileContains(
+      agentsPath,
+      policy?.developer_language === "en"
+        ? "must not modify code, generate patches, or run implementation commands"
+        : "不得修改代码、生成补丁、执行实现性命令",
+      "AGENTS.md missing execution gate enforcement",
+      failures,
+    );
+    checkFileContains(
+      agentsPath,
+      policy?.developer_language === "en"
+        ? "must check the current git branch"
+        : "必须先检查当前 git 分支",
+      "AGENTS.md missing protected branch pre-check",
+      failures,
+    );
+    checkFileContains(
+      agentsPath,
+      policy?.developer_language === "en"
+        ? "must not implement on that branch by default"
+        : "默认不得直接实施代码修改",
+      "AGENTS.md missing protected branch rule",
       failures,
     );
   }
@@ -960,6 +1121,42 @@ export function runVerify(targetArg: string) {
       policySkillPath,
       "debug_mode",
       "policy skill missing debug_mode handling",
+      failures,
+    );
+    checkFileContains(
+      policySkillPath,
+      "runtime-state.json",
+      "policy skill missing runtime-state reference",
+      failures,
+    );
+    checkFileContains(
+      policySkillPath,
+      policy?.developer_language === "en"
+        ? "Only produce the restated requirement"
+        : "只能输出需求复述",
+      "policy skill missing restate gate enforcement",
+      failures,
+    );
+    checkFileContains(
+      policySkillPath,
+      policy?.developer_language === "en"
+        ? "Only produce the execution confirmation summary"
+        : "只能输出执行前确认摘要",
+      "policy skill missing execution gate enforcement",
+      failures,
+    );
+    checkFileContains(
+      policySkillPath,
+      policy?.developer_language === "en"
+        ? "must check the current git branch"
+        : "必须先检查当前 git 分支",
+      "policy skill missing protected branch pre-check",
+      failures,
+    );
+    checkFileContains(
+      policySkillPath,
+      policy?.developer_language === "en" ? "must switch to a work branch" : "默认先切出工作分支",
+      "policy skill missing protected branch rule",
       failures,
     );
   }
@@ -1021,6 +1218,11 @@ export function runVerify(targetArg: string) {
           debug_mode?: string;
           developer_language?: string;
           document_mode?: string;
+          gate_status?: {
+            restate_completed?: unknown;
+            execution_approved?: unknown;
+          };
+          blocked_reason?: unknown;
           current_phase?: string;
           used_query_agent?: unknown;
           used_execution_agents?: unknown;
@@ -1040,6 +1242,19 @@ export function runVerify(targetArg: string) {
       }
       if (debugLog.document_mode !== policy?.document_mode) {
         failures.push("debug log document_mode does not match project policy");
+      }
+      if (!debugLog.gate_status) {
+        failures.push("debug log missing gate_status");
+      } else {
+        if (typeof debugLog.gate_status.restate_completed !== "boolean") {
+          failures.push("debug log gate_status.restate_completed must be boolean");
+        }
+        if (typeof debugLog.gate_status.execution_approved !== "boolean") {
+          failures.push("debug log gate_status.execution_approved must be boolean");
+        }
+      }
+      if (debugLog.blocked_reason !== "awaiting_restate_gate") {
+        failures.push("debug log blocked_reason must default to awaiting_restate_gate");
       }
       if (!["Planner", "Implementer", "Reviewer"].includes(debugLog.current_phase ?? "")) {
         failures.push("debug log has invalid current_phase");

@@ -103,6 +103,7 @@ describe("runInit", () => {
     expect(existsSync(join(target, ".harness", "project-policy.json"))).toBe(true);
     expect(existsSync(join(target, ".harness", "components.lock.json"))).toBe(true);
     expect(existsSync(join(target, ".harness", "runtime-contract.json"))).toBe(true);
+    expect(existsSync(join(target, ".harness", "runtime-state.json"))).toBe(true);
     expect(existsSync(join(target, ".harness", "superpowers", "README.md"))).toBe(true);
     expect(existsSync(join(target, "AGENTS.md"))).toBe(true);
     expect(existsSync(join(target, "documents", "README.md"))).toBe(true);
@@ -117,6 +118,10 @@ describe("runInit", () => {
     const runtimeContract = readFileSync(join(target, ".harness", "runtime-contract.json"), "utf8");
     expect(runtimeContract).toContain('"复述需求"');
     expect(runtimeContract).toContain('"Planner"');
+    expect(runtimeContract).toContain('"restate_gate"');
+    expect(runtimeContract).toContain('"protected_branches"');
+    const runtimeState = readFileSync(join(target, ".harness", "runtime-state.json"), "utf8");
+    expect(runtimeState).toContain('"task_state": "awaiting_restate"');
   });
 
   it("creates the full document structure and debug logs", async () => {
@@ -142,9 +147,12 @@ describe("runInit", () => {
     const agents = readFileSync(join(target, "AGENTS.md"), "utf8");
     expect(agents).toContain("Developer language");
     expect(agents).toContain("debug_mode=on");
+    expect(agents).toContain("must not enter planning output or code implementation");
+    expect(agents).toContain("must check the current git branch");
     const debugLog = readFileSync(join(target, ".harness", "logs", "latest.json"), "utf8");
     expect(debugLog).toContain("used_query_agent");
     expect(debugLog).toContain("execution_agent_boundaries");
+    expect(debugLog).toContain("gate_status");
   });
 
   it("backs up conflicting paths before replacement", async () => {
@@ -155,6 +163,7 @@ describe("runInit", () => {
     const { mkdirSync, writeFileSync, readdirSync } = await import("node:fs");
     writeFileSync(join(target, "AGENTS.md"), "CUSTOM_AGENT_RULE\n", "utf8");
     writeFileSync(join(target, ".harness", "runtime-contract.json"), '{"custom":true}\n', "utf8");
+    writeFileSync(join(target, ".harness", "runtime-state.json"), '{"custom":true}\n', "utf8");
     mkdirSync(join(target, ".harness", "logs"), { recursive: true });
     writeFileSync(join(target, ".harness", "logs", "latest.json"), '{"custom":true}\n', "utf8");
 
@@ -165,6 +174,7 @@ describe("runInit", () => {
     const backupRoot = join(target, ".harness-backup", backups[0]);
     expect(existsSync(join(backupRoot, "AGENTS.md"))).toBe(true);
     expect(existsSync(join(backupRoot, ".harness", "runtime-contract.json"))).toBe(true);
+    expect(existsSync(join(backupRoot, ".harness", "runtime-state.json"))).toBe(true);
     expect(existsSync(join(backupRoot, ".harness", "logs", "latest.json"))).toBe(true);
   });
 });
@@ -242,6 +252,7 @@ describe("runVerify", () => {
           profiles: {
             plan: "Wrong",
           },
+          gates: {},
           commands: {
             复述需求: {
               pir_phase: "Implementer",
@@ -281,6 +292,10 @@ describe("runVerify", () => {
           debug_mode: "off",
           developer_language: "en",
           document_mode: "flat",
+          gate_status: {
+            restate_completed: "nope",
+          },
+          blocked_reason: "custom",
           current_phase: "Shipping",
           used_query_agent: "sometimes",
           used_execution_agents: -1,
@@ -295,6 +310,27 @@ describe("runVerify", () => {
         null,
         2,
       ),
+      "utf8",
+    );
+
+    runVerify(target);
+    expect(process.exitCode).toBe(1);
+  });
+
+  it("fails when runtime state and gate enforcement rules are missing", async () => {
+    const target = rememberTmpDir();
+
+    await runInit(target, {
+      ...baseOptions,
+      documentMode: "full",
+      debugMode: "on",
+    });
+
+    const { rmSync, writeFileSync } = await import("node:fs");
+    rmSync(join(target, ".harness", "runtime-state.json"));
+    writeFileSync(
+      join(target, "skills", "harness-project-policy", "SKILL.md"),
+      "# Harness Project Policy\n",
       "utf8",
     );
 
