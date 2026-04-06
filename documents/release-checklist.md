@@ -105,10 +105,12 @@ pnpm release:check
 CI 工作流文件位于：
 
 - `.github/workflows/ci.yml`
+- `.github/workflows/release.yml`
 
 通过标准：
 
 - `verify` job 全部通过
+- 如果本次涉及发版，Release workflow 的对应 run 成功
 
 ### 3.4 PR 信息完整性
 
@@ -197,6 +199,7 @@ Review 场景：
 - [ ] `pnpm verify` 通过
 - [ ] `pnpm check:product` 通过
 - [ ] CI 通过
+- [ ] 若走 GitHub 自动发版，`release.yml` workflow 已通过
 - [ ] 人工工作流验收完成
 - [ ] 已填写人工验收记录模板
 - [ ] 人工验收记录已归档到 `documents/releases/`
@@ -204,6 +207,7 @@ Review 场景：
 - [ ] 文档入口仍可用
 - [ ] 若修改了初始化骨架，已确认生成结果符合预期
 - [ ] 若修改了命令面，README 与文档已同步
+- [ ] 若走 GitHub 自动发版，仓库已配置 `NPM_TOKEN`
 
 ---
 

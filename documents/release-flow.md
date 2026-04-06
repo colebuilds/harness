@@ -17,8 +17,10 @@ applies_to: human, ai-agent
 
 - 发布前自动化检查
 - 人工验收
+- changeset 准备
 - version bump
 - publish 顺序
+- GitHub Actions 自动发版
 
 它不替代：
 
@@ -36,6 +38,7 @@ applies_to: human, ai-agent
 - 根脚本 `release:check`
 - 产品回归脚本 `check:product`
 - CI 工作流
+- Release 工作流
 - 发布前人工验收模板
 
 根仓库相关命令位于：
@@ -44,19 +47,25 @@ applies_to: human, ai-agent
 - `pnpm release:version`
 - `pnpm release:publish`
 
+GitHub Actions 入口位于：
+
+- `.github/workflows/release.yml`
+
 ---
 
 ## 3. 建议发布顺序
 
 当前推荐顺序如下：
 
-1. 确认改动范围
+1. 在功能 PR 中补对应的 changeset
 2. 运行发布前自动化检查
 3. 执行人工工作流验收
 4. 归档人工验收记录
-5. 执行 version bump
-6. 审查版本变更结果
-7. 执行 publish
+5. 合并到 `main`
+6. 由 GitHub Actions 自动创建/更新版本 PR
+7. 合并版本 PR 后，由 GitHub Actions 自动 publish
+
+本地 `release:version` / `release:publish` 仍可作为应急兜底方式，但不再是首选。
 
 ---
 
@@ -94,10 +103,16 @@ pnpm release:check
 
 ### 4.3 版本变更
 
-如果本次改动需要发布新版本，在仓库根目录执行：
+如果本次改动需要发布新版本，应先在功能分支添加 changeset：
 
 ```bash
 cd /Users/cola/Documents/gs/harness
+pnpm changeset
+```
+
+合并到 `main` 后，Release 工作流会调用：
+
+```bash
 pnpm release:version
 ```
 
@@ -112,7 +127,30 @@ changeset version
 - 更新版本号
 - 生成或更新与版本相关的发布元数据
 
-### 4.4 审查 version 结果
+### 4.4 GitHub Actions 自动发版
+
+Release 工作流位于：
+
+- `.github/workflows/release.yml`
+
+触发方式：
+
+- push 到 `main`
+- 手动 `workflow_dispatch`
+
+工作流行为：
+
+- 先执行 `pnpm release:check`
+- 如果 `main` 上存在未消费的 changeset，则创建或更新版本 PR
+- 如果版本 PR 已合并且 npm 上尚未存在该版本，则自动执行 `pnpm release:publish`
+
+仓库首次启用前需准备：
+
+- 仓库 Secret `NPM_TOKEN`
+- 该 token 具备 npm publish 权限
+- 该 token 不要求 publish 时再做 2FA
+
+### 4.5 审查 version 结果
 
 执行 `release:version` 之后，至少应检查：
 
@@ -121,7 +159,7 @@ changeset version
 - 发布相关文件是否完整
 - 本次 version 变更是否需要补充说明
 
-### 4.5 发布
+### 4.6 发布
 
 确认版本信息无误后，在仓库根目录执行：
 
@@ -153,9 +191,9 @@ changeset publish
 
 ### 5.2 真正发布前额外完成
 
-- `pnpm release:version`
-- 审查版本变更结果
-- `pnpm release:publish`
+- changeset 已补齐
+- Release workflow 已配置好 `NPM_TOKEN`
+- 版本 PR 或 publish job 通过
 
 ---
 
@@ -168,13 +206,23 @@ cd /Users/cola/Documents/gs/harness
 pnpm release:check
 ```
 
-### 做正式版本发布
+### 本地兜底发布
 
 ```bash
 cd /Users/cola/Documents/gs/harness
 pnpm release:check
 pnpm release:version
 pnpm release:publish
+```
+
+### GitHub Actions 自动发布
+
+```text
+1. 功能 PR 中包含 changeset
+2. 合并到 main
+3. Release workflow 创建版本 PR
+4. 合并版本 PR
+5. Release workflow 自动 publish
 ```
 
 ---
@@ -187,6 +235,7 @@ pnpm release:publish
 - 人工工作流验收
 - `pnpm release:version`
 - `pnpm release:publish`
+- Release workflow
 
 则不进入下一步。
 
@@ -200,4 +249,4 @@ pnpm release:publish
 
 ## 8. 一句话总结
 
-**当前 Harness 的发布流程，是先过 `release:check` 和人工验收，再做 `release:version`，最后执行 `release:publish`。**
+**当前 Harness 推荐使用 GitHub Actions 驱动的 changeset 发版；本地 `release:version` / `release:publish` 仅作为兜底。**

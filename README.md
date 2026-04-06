@@ -97,6 +97,7 @@ Regression and release entry points:
 - `pnpm verify`
 - `pnpm check:product`
 - `pnpm release:check`
+- `.github/workflows/release.yml`
 - `documents/release-checklist.md`
 - `documents/release-flow.md`
 - `.github/pull_request_template.md`
