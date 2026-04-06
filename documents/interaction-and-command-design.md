@@ -220,8 +220,8 @@ applies_to: human, ai-agent
 
 - `PIR` 的 `Implementer`
 - 主 agent
-- 查询子 agent
-- 按需执行子 agent
+- 查询 agent
+- 按需执行 agent
 
 共同承接。
 
@@ -231,6 +231,14 @@ applies_to: human, ai-agent
 - `systematic-debugging`
 
 这类 `superpowers` workflow。
+
+若 `debug_mode=on`，执行摘要中还应显式说明：
+
+- 是否调用了查询 agent
+- 是否拆分了执行 agent
+- 每个执行 agent 的任务边界
+- 当前阶段如何流转
+- 最终由谁收口
 
 ---
 

@@ -40,9 +40,13 @@ applies_to: human, ai-agent
 
 - [ ] 成功执行 `harness-codex init`
 - [ ] `.codex/config.toml` 存在
+- [ ] `.harness/project-policy.json` 存在
+- [ ] `.harness/components.lock.json` 存在
+- [ ] `.harness/runtime-contract.json` 存在
 - [ ] `AGENTS.md` 存在
-- [ ] `documents/codex-pir/*` 存在
-- [ ] `vendor/superpowers/skills/*` 存在
+- [ ] `documents/README.md` 存在
+- [ ] `/.harness/superpowers/*` 存在
+- [ ] `skills/harness-project-policy/SKILL.md` 存在
 
 备注：
 

@@ -35,8 +35,9 @@ applies_to: human, ai-agent
 - 需求不能一上来就直接进入实现
 - AI 要先确认是否理解需求
 - 在执行前，用户要能看见边界和计划
-- 执行阶段可以由主 agent 调度查询子 agent 与按需执行子 agent
+- 执行阶段可以由主 agent 调度查询 agent 与按需执行 agent
 - 最终要输出代码和文档结果
+- 若开启 `debug_mode`，用户还应能看见 agent 调度摘要
 
 ---
 
@@ -157,16 +158,22 @@ applies_to: human, ai-agent
 这一阶段由以下结构承接：
 
 - 主 agent
-- 查询子 agent
-- 按需执行子 agent
+- 查询 agent
+- 按需执行 agent
 
 其中：
 
 - 主 agent 负责主流程推进
-- 查询子 agent 负责查代码、查文档、查上下文
-- 执行子 agent 按需参与复杂实现任务
+- 查询 agent 负责查代码、查文档、查上下文
+- 执行 agent 按需参与复杂实现任务
 
-  0.1 中，这一层只做最小协作，不做复杂运行时编排系统。
+  0.1 中，这一层只做最小协作，不做复杂运行时编排系统；但会通过：
+
+- `AGENTS.md`
+- `.harness/runtime-contract.json`
+- `debug_mode=on` 时的调试摘要模板
+
+把这套最小运行时架构显式固化下来。
 
 ---
 
@@ -183,6 +190,19 @@ applies_to: human, ai-agent
 - 完整提交控制协议
 - 自动 git 提交
 - 复杂交付状态机
+
+当前新增要求：
+
+- 用户可运行 `harness-codex verify` 检查骨架是否仍然一致
+
+当 `debug_mode=on` 时，当前实现还要求 `.harness/logs/latest.json` 满足最小摘要结构，包括：
+
+- `current_phase`
+- `used_query_agent`
+- `used_execution_agents`
+- `execution_agent_boundaries`
+- `phase_transitions`
+- `final_owner`
 
 ---
 
@@ -202,4 +222,4 @@ applies_to: human, ai-agent
 
 ## 11. 一句话总结
 
-**Harness 0.1 的执行模型不是完整执行内核，而是一条由 `复述需求`、分析/规划、`开始执行`、执行前确认与最小主/子 agent 协作组成的最小执行闭环。**
+**Harness 0.1 的执行模型不是完整执行内核，而是一条由 `复述需求`、分析/规划、`开始执行`、执行前确认与最小主 / 查询 / 执行 agent 协作组成的最小执行闭环；当前实现已用 `runtime-contract`、调试摘要模板与 `verify` 将其落到项目骨架中。**

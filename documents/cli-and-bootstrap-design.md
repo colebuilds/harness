@@ -52,11 +52,14 @@ harness-codex init
 
 - 扫描项目目录
 - 识别是否已有接入痕迹
+- 采集最小初始化配置
 - 写 `.codex/config.toml`
+- 写 `.harness/project-policy.json`
+- 写 `.harness/components.lock.json`
 - 写 `AGENTS.md`
-- 写 `documents/README.md`
-- 写 `documents/codex-pir/`
-- 建立最小 skill 入口说明
+- 按 `flat/full` 写 `documents/README.md` 与文档目录
+- 写项目级策略 skill
+- 完整接入受管 `superpowers`
 - 输出初始化结果摘要
 
 ---
@@ -66,41 +69,37 @@ harness-codex init
 0.1 第一版建议至少写入：
 
 - `.codex/config.toml`
+- `.harness/project-policy.json`
+- `.harness/components.lock.json`
 - `AGENTS.md`
 - `documents/README.md`
-- `documents/codex-pir/README.md`
+- `skills/harness-project-policy/SKILL.md`
+- `/.harness/superpowers/`
 
-建议一并写入：
+若 `document_mode=full`，建议一并写入：
 
-- `documents/codex-pir/01-roles.md`
-- `documents/codex-pir/02-workflows.md`
-- `documents/codex-pir/03-configuration.md`
-- `documents/codex-pir/04-prompts.md`
-- `documents/codex-pir/05-official-mapping.md`
-- `documents/codex-pir/06-installation-and-project-integration.md`
-- `documents/codex-pir/07-init-generated-assets.md`
+- `documents/requirements/README.md`
+- `documents/designs/README.md`
+- `documents/deliveries/README.md`
+- `documents/evolution/README.md`
+- `documents/standards/ai-collaboration/README.md`
 
 ---
 
 ## 6. 0.1 用户输入原则
 
-0.1 应尽量做到：
+0.1 当前保留的最小初始化配置为：
 
-**用户侧零配置。**
+- `developer_language`
+- `document_mode`
+- `debug_mode`
 
-也就是说：
+其余行为固定为：
 
-- 默认不让用户先选语言
-- 默认不让用户先选项目类型
-- 默认不让用户先选框架类型
-
-系统应优先：
-
-- 自动扫描项目目录
-- 自动识别项目特征
-- 自动决定按最小骨架接入
-
-只有在识别不准时，才给出最小确认。
+- 完整受管接入 `superpowers`
+- 启用 `复述需求`
+- 启用 `开始执行`
+- 有冲突时统一备份后再替换
 
 ---
 
@@ -124,10 +123,11 @@ harness-codex init
 如果 `harness-codex init` 执行成功，项目应立即获得：
 
 - 最小 Codex 配置入口
+- 项目级策略配置入口
 - 最小项目规则入口
 - 最小文档治理入口
-- 最小 Codex 工作手册入口
-- 最小 workflow 与 skill 接入入口
+- 最小项目策略 skill
+- 完整受管 `superpowers` workflow 入口
 
 此后用户应能立刻开始：
 
@@ -141,4 +141,4 @@ harness-codex init
 
 ## 9. 一句话总结
 
-**Harness 0.1 的 CLI 当前不是完整控制台，而是一个把最小协作骨架写进用户项目的正式接入入口。**
+**Harness 0.1 的 CLI 当前不是完整控制台，而是一个把最小协作骨架、项目策略和完整受管 `superpowers` 写进用户项目的正式接入入口。**

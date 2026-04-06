@@ -19,13 +19,13 @@ applies_to: human, ai-agent
 
 当前 0.1 采用的是：
 
-- 仓库内 vendored 接入
+- 仓库内完整受管接入
 - 作为 workflow / skill 来源
 - 不直接把它提升为内核
 
-仓库中的实际位置为：
+初始化到用户项目后的实际位置为：
 
-- `vendor/superpowers/`
+- `/.harness/superpowers/`
 
 ---
 
@@ -53,17 +53,25 @@ applies_to: human, ai-agent
 - `复述需求` 之后
   - 进入 `Planner`
   - 优先参考：
-    - `skills/brainstorming`
-    - `skills/writing-plans`
+    - `/.harness/superpowers/skills/brainstorming`
+    - `/.harness/superpowers/skills/writing-plans`
 - `开始执行` 之后
   - 进入 `Implementer`
   - 优先参考：
-    - `skills/executing-plans`
-    - `skills/systematic-debugging`
+    - `/.harness/superpowers/skills/executing-plans`
+    - `/.harness/superpowers/skills/systematic-debugging`
 - `Reviewer` 场景
   - 优先参考：
-    - `skills/requesting-code-review`
-    - `skills/receiving-code-review`
+    - `/.harness/superpowers/skills/requesting-code-review`
+    - `/.harness/superpowers/skills/receiving-code-review`
+
+项目级策略和文档路由则由：
+
+- `skills/harness-project-policy/`
+- `AGENTS.md`
+- `documents/README.md`
+
+共同承接。
 
 ---
 
@@ -86,4 +94,4 @@ applies_to: human, ai-agent
 
 ## 6. 一句话总结
 
-**Harness 0.1 当前将 `superpowers` 作为仓库内 vendored workflow 来源接入，用于补强 PIR 的阶段工作流，而不是作为内核系统。**
+**Harness 0.1 当前将 `superpowers` 作为完整受管 workflow 来源接入，用于补强 PIR 的阶段工作流，而不是作为内核系统。**
