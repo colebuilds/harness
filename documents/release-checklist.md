@@ -207,7 +207,7 @@ Review 场景：
 - [ ] 文档入口仍可用
 - [ ] 若修改了初始化骨架，已确认生成结果符合预期
 - [ ] 若修改了命令面，README 与文档已同步
-- [ ] 若走 GitHub 自动发版，仓库已配置 `NPM_TOKEN`
+- [ ] 若走 GitHub 自动发版，npm 包已配置 Trusted Publisher
 
 ---
 

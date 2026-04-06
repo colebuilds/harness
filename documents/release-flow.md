@@ -146,9 +146,20 @@ Release 工作流位于：
 
 仓库首次启用前需准备：
 
-- 仓库 Secret `NPM_TOKEN`
-- 该 token 具备 npm publish 权限
-- 该 token 不要求 publish 时再做 2FA
+- 在 npm 包 `harness-codex` 的设置中配置 Trusted Publisher
+- GitHub provider 指向 `colebuilds/harness`
+- workflow 文件名必须精确填写 `release.yml`
+- workflow 使用 GitHub-hosted runner
+- Release workflow 需要 `id-token: write`
+
+当前实现不再依赖仓库 Secret `NPM_TOKEN`。
+
+Trusted Publisher 在 npm 后台中的关键字段：
+
+- Organization or user: `colebuilds`
+- Repository: `harness`
+- Workflow filename: `release.yml`
+- Environment: 留空
 
 ### 4.5 审查 version 结果
 
@@ -192,7 +203,7 @@ changeset publish
 ### 5.2 真正发布前额外完成
 
 - changeset 已补齐
-- Release workflow 已配置好 `NPM_TOKEN`
+- npm 包已配置 Trusted Publisher
 - 版本 PR 或 publish job 通过
 
 ---
